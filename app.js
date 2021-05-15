@@ -24,7 +24,8 @@ const options = {
   }
 };
 
-const changeStatus = async (txt, emoji,status) => {
+const changeStatus = async(txt, emoji, status) => {
+  
   let currentDate = new Date().toLocaleString("en-US", {timeZone: 'Asia/Jerusalem'});
   let futureDate = new Date(currentDate).getTime() + 10 * 60000;
   axios.post('https://slack.com/api/users.profile.set', {
@@ -37,14 +38,15 @@ const changeStatus = async (txt, emoji,status) => {
     if (!res.data.ok) {
       logger(res.data.error, LEVEL.ALERT)
     }
+  }).catch((e)=> {
+    logger(e, LEVEL.WARN)
   });
-  await axios
-    .post('https://slack.com/api/users.setPresence',{presence: status}, options)
+  axios.post('https://slack.com/api/users.setPresence',{presence: status}, options)
 }
 
 
 
-const getAlerts = async () => {
+const getAlerts = () => {
   const url = 'https://www.oref.org.il/WarningMessages/alert/alerts.json'
   const options = {
     headers: {
@@ -55,20 +57,22 @@ const getAlerts = async () => {
   };
 
   axios.get(url, options).then((res) => {
+   
     const rawData = res.data;
     if(!rawData.data) return
-    logger(rawData.data.data)
+    logger([rawData.data, rawData.data.length])
     
-    for (let i = 0; i < rawData.data.data.length; i++) {
-      logger(rawData.data.data[i], LEVEL.WARN)
+    for (let i = 0; i < rawData.data.length; i++) {
+      logger(rawData.data[i], LEVEL.WARN)
       
       if(process.env.CITY=='all'){
-         changeStatus(`אזעקה ב${rawData.data.data[i]}`, ':loudspeaker:', 'away')
-      }
-      
-      if (rawData.data.data[i].data == process.env.CITY) {          
-         changeStatus(process.env.ALERT_MESSAGE, ':loudspeaker:', 'away')
-      }      
+         changeStatus(`אזעקה ב${rawData.data.join(',')}`, ':loudspeaker:', 'away')
+      } else {
+        if (rawData.data[i] == process.env.CITY) {          
+            changeStatus(process.env.ALERT_MESSAGE, ':loudspeaker:', 'away')
+         } 
+      }     
+           
     }
   });
 }
