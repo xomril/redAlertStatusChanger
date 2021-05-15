@@ -3,7 +3,6 @@ const chalk = require('chalk');
 const axios = require('axios').default;
 const cron = require('node-cron');
 
-
 const LEVEL = {
   INFO: 'info',
   WARN: 'warn',
@@ -25,15 +24,9 @@ const options = {
   }
 };
 
-const changeStatus = async (txt, emoji) => {
+const changeStatus = async (txt, emoji,status) => {
   let currentDate = new Date().toLocaleString("en-US", {timeZone: 'Asia/Jerusalem'});
   let futureDate = new Date(currentDate).getTime() + 10 * 60000;
-
-  console.log([{
-    "status_text": txt,
-    "status_emoji": emoji,
-    "status_expiration": futureDate / 1000
-  }])
   axios.post('https://slack.com/api/users.profile.set', {
     "profile": {
       "status_text": txt,
@@ -45,6 +38,8 @@ const changeStatus = async (txt, emoji) => {
       logger(res.data.error, LEVEL.ALERT)
     }
   });
+  await axios
+    .post('https://slack.com/api/users.setPresence',{presence: status}, options)
 }
 
 
@@ -63,22 +58,23 @@ const getAlerts = async () => {
     const rowData = res.data;
     if (rowData.length == 0) return;
     logger(rowData)
-
+    
     for (let i = 0; i < rowData.data.length; i++) {
-      if (res.data[i] == process.env.CITY) {
-        logger(res.data[i], LEVEL.WARN)
-        changeStatus(process.env.ALERT_MESSAGE, ':loudspeaker:')
+      logger(res.data[i], LEVEL.WARN)
+      if(process.env.CITY!=''){
+        if (res.data[i] == process.env.CITY) {          
+          changeStatus(process.env.ALERT_MESSAGE, ':loudspeaker:', 'away')
+        }
+      } else {
+        changeStatus(`אזעקה ב${res.data[i]}`, ':loudspeaker:', 'away')
       }
-
     }
   });
 }
 
-
-
-changeStatus(process.env.CLEAR_MESSAGE, ':smile:')
+changeStatus(process.env.CLEAR_MESSAGE, ':smile:', 'auto');
 getAlerts()
+logger('Running a task every 10 second', LEVEL.INFO);  
 cron.schedule('*/10 * * * * *', () => {
-  logger('running a task every 10 second', LEVEL.INFO);
   getAlerts()
 });
