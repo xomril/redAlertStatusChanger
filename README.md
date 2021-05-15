@@ -14,7 +14,7 @@ npm install
 
 you need to create a personal token, 
  - first visit [slack api portal](https://api.slack.com/apps) to create your app
- - to follow [this guide](https://medium.com/@andrewarrow/how-to-get-slack-api-tokens-with-client-scope-e311856ebe9) to get the slack api token 
+ - follow [this guide](https://medium.com/@andrewarrow/how-to-get-slack-api-tokens-with-client-scope-e311856ebe9) to get the slack api token 
 - update [./.env](.env) file with your personal token and city
 
 ## Usage
