@@ -61,7 +61,7 @@ const getAlerts = async () => {
     
     for (let i = 0; i < rowData.data.length; i++) {
       logger(res.data[i], LEVEL.WARN)
-      if(process.env.CITY!=''){
+      if(process.env.CITY!='all'){
         if (res.data[i] == process.env.CITY) {          
           changeStatus(process.env.ALERT_MESSAGE, ':loudspeaker:', 'away')
         }
