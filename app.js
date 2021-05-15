@@ -55,11 +55,11 @@ const getAlerts = async () => {
   };
 
   axios.get(url, options).then((res) => {
-    const rowData = res.data;
-    if (rowData.length == 0) return;
-    logger(rowData.data)
+    const rawData = res.data;
+    if (rawData.length == 0) return;
+    logger(rawData.data)
     
-    for (let i = 0; i < rowData.data.length; i++) {
+    for (let i = 0; i < rawData.data.length; i++) {
       logger(res.data[i].data, LEVEL.WARN)
       if(process.env.CITY=='all'){
          changeStatus(`אזעקה ב${res.data[i].data}`, ':loudspeaker:', 'away')
