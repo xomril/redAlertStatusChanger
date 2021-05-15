@@ -61,13 +61,14 @@ const getAlerts = async () => {
     
     for (let i = 0; i < rawData.data.length; i++) {
       logger(res.data[i].data, LEVEL.WARN)
+      
       if(process.env.CITY=='all'){
          changeStatus(`אזעקה ב${res.data[i].data}`, ':loudspeaker:', 'away')
-      } else {
-        if (res.data[i].data == process.env.CITY) {          
-          changeStatus(process.env.ALERT_MESSAGE, ':loudspeaker:', 'away')
-        }
       }
+      
+      if (res.data[i].data == process.env.CITY) {          
+         changeStatus(process.env.ALERT_MESSAGE, ':loudspeaker:', 'away')
+      }      
     }
   });
 }
