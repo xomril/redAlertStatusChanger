@@ -22,6 +22,7 @@ you need to create a personal token,
 npm run start
 ```
 
+in any case of red alert in your city - the script will change your slack status for 10 minutes
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
