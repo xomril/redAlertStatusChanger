@@ -57,16 +57,16 @@ const getAlerts = async () => {
   axios.get(url, options).then((res) => {
     const rowData = res.data;
     if (rowData.length == 0) return;
-    logger(rowData)
+    logger(rowData.data)
     
     for (let i = 0; i < rowData.data.length; i++) {
-      logger(res.data[i], LEVEL.WARN)
-      if(process.env.CITY!='all'){
-        if (res.data[i] == process.env.CITY) {          
+      logger(res.data[i].data, LEVEL.WARN)
+      if(process.env.CITY=='all'){
+         changeStatus(`אזעקה ב${res.data[i].data}`, ':loudspeaker:', 'away')
+      } else {
+        if (res.data[i].data == process.env.CITY) {          
           changeStatus(process.env.ALERT_MESSAGE, ':loudspeaker:', 'away')
         }
-      } else {
-        changeStatus(`אזעקה ב${res.data[i]}`, ':loudspeaker:', 'away')
       }
     }
   });
