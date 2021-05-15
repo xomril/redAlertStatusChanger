@@ -1,0 +1,17 @@
+{
+  "name": "redalertbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "chalk": "^4.1.1",
+    "dotenv": "^9.0.2",
+    "node-cron": "^3.0.0"
+  }
+}
