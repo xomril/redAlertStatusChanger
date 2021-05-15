@@ -2,17 +2,13 @@ require('dotenv').config();
 const chalk = require('chalk');
 const axios = require('axios').default;
 const cron = require('node-cron');
-const fs = require('fs');
-const logFile = 'log.json';
-fs.writeFileSync(logFile, JSON.stringify([]))
+
+
 const LEVEL = {
   INFO: 'info',
   WARN: 'warn',
   ALERT: 'alert'
 }
-
-
-
 
 const logger = (txt, level) => {
   let p = chalk.green;
@@ -30,15 +26,19 @@ const options = {
 };
 
 const changeStatus = async (txt, emoji) => {
-  let d = new Date();
-  let diff = 10;
-  let newDateObj = new Date(d.getTime() + diff * 60000);
+  let currentDate = new Date().toLocaleString("en-US", {timeZone: 'Asia/Jerusalem'});
+  let futureDate = new Date(currentDate).getTime() + 10 * 60000;
 
+  console.log([{
+    "status_text": txt,
+    "status_emoji": emoji,
+    "status_expiration": futureDate / 1000
+  }])
   axios.post('https://slack.com/api/users.profile.set', {
     "profile": {
       "status_text": txt,
       "status_emoji": emoji,
-      "status_expiration": newDateObj.getTime()
+      "status_expiration": futureDate / 1000 /* I'm not sure why i need to devide this number to 1000 but it works */
     }
   }, options).then((res) => {
     if (!res.data.ok) {
@@ -63,12 +63,11 @@ const getAlerts = async () => {
     const rowData = res.data;
     if (rowData.length == 0) return;
     logger(rowData)
-    storeData(rowData.data)
 
     for (let i = 0; i < rowData.data.length; i++) {
       if (res.data[i] == process.env.CITY) {
         logger(res.data[i], LEVEL.WARN)
-        changeStatus(`אזעקה ב${rowData.data[i]}`, ':alert:')
+        changeStatus(process.env.ALERT_MESSAGE, ':loudspeaker:')
       }
 
     }
@@ -76,20 +75,10 @@ const getAlerts = async () => {
 }
 
 
-const storeData = (data) => {
-  let rawdata = fs.readFileSync(logFile);
-  let logs = JSON.parse(rawdata);
-  logs.push({ id: data.id, data: data.data })
-  try {
-    fs.writeFileSync(logFile, JSON.stringify(logs))
-  } catch (err) {
-    console.error(err)
-  }
-}
-changeStatus('הכל רגוע', ':happy:')
-getAlert()
+
+changeStatus(process.env.CLEAR_MESSAGE, ':smile:')
+getAlerts()
 cron.schedule('*/10 * * * * *', () => {
   logger('running a task every 10 second', LEVEL.INFO);
   getAlerts()
 });
-
