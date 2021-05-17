@@ -24,10 +24,10 @@ const options = {
   }
 };
 
-const changeStatus = async(txt, emoji, status) => {
-  
-  let currentDate = new Date().toLocaleString("en-US", {timeZone: 'Asia/Jerusalem'});
-  let futureDate = new Date(currentDate).getTime() + 10 * 60000;
+const changeStatus = async (txt, emoji, status, expiration = 10) => {
+  const currentDate = new Date().toLocaleString("en-US", {timeZone: 'Asia/Jerusalem'});
+  const futureDate = new Date(currentDate).getTime() + expiration * 60000;
+
   axios.post('https://slack.com/api/users.profile.set', {
     "profile": {
       "status_text": txt,
@@ -41,7 +41,8 @@ const changeStatus = async(txt, emoji, status) => {
   }).catch((e)=> {
     logger(e, LEVEL.WARN)
   });
-  axios.post('https://slack.com/api/users.setPresence',{presence: status}, options)
+  axios
+    .post('https://slack.com/api/users.setPresence',{presence: status}, options)
 }
 
 
