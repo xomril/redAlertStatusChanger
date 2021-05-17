@@ -27,6 +27,7 @@ const options = {
 const changeStatus = async (txt, emoji, status, expiration = 10) => {
   const currentDate = new Date().toLocaleString("en-US", {timeZone: 'Asia/Jerusalem'});
   const futureDate = new Date(currentDate).getTime() + expiration * 60000;
+
   axios.post('https://slack.com/api/users.profile.set', {
     "profile": {
       "status_text": txt,
@@ -37,14 +38,16 @@ const changeStatus = async (txt, emoji, status, expiration = 10) => {
     if (!res.data.ok) {
       logger(res.data.error, LEVEL.ALERT)
     }
+  }).catch((e)=> {
+    logger(e, LEVEL.WARN)
   });
-  await axios
-    .post('https://slack.com/api/users.setPresence', {presence: status}, options)
+  axios
+    .post('https://slack.com/api/users.setPresence',{presence: status}, options)
 }
 
 
 
-const getAlerts = async () => {
+const getAlerts = () => {
   const url = 'https://www.oref.org.il/WarningMessages/alert/alerts.json'
   const options = {
     headers: {
@@ -55,19 +58,22 @@ const getAlerts = async () => {
   };
 
   axios.get(url, options).then((res) => {
-    const rowData = res.data;
-    if (rowData.length == 0) return;
-    logger(rowData)
+   
+    const rawData = res.data;
+    if(!rawData.data) return
+    logger([rawData.data, rawData.data.length])
     
-    for (let i = 0; i < rowData.data.length; i++) {
-      logger(res.data[i], LEVEL.WARN)
-      if(process.env.CITY!='all'){
-        if (res.data[i] == process.env.CITY) {          
-          changeStatus(process.env.ALERT_MESSAGE, ':loudspeaker:', 'away')
-        }
+    for (let i = 0; i < rawData.data.length; i++) {
+      logger(rawData.data[i], LEVEL.WARN)
+      
+      if(process.env.CITY=='all'){
+         changeStatus(`אזעקה ב${rawData.data.join(',')}`, ':loudspeaker:', 'away')
       } else {
-        changeStatus(`אזעקה ב${res.data[i]}`, ':loudspeaker:', 'away')
-      }
+        if (rawData.data[i] == process.env.CITY) {          
+            changeStatus(process.env.ALERT_MESSAGE, ':loudspeaker:', 'away')
+         } 
+      }     
+           
     }
   });
 }
