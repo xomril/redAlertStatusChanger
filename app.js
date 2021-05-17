@@ -32,15 +32,18 @@ const changeStatus = async (txt, emoji, status, expiration = 10) => {
     "profile": {
       "status_text": txt,
       "status_emoji": emoji,
-      "status_expiration": futureDate / 1000 /* I'm not sure why i need to devide this number to 1000 but it works */
+      "status_expiration": futureDate / 1000;
     }
-  }, options).then((res) => {
+  }, options)
+    .then((res) => {
     if (!res.data.ok) {
       logger(res.data.error, LEVEL.ALERT)
     }
-  }).catch((e)=> {
+  })
+    .catch((e)=> {
     logger(e, LEVEL.WARN)
   });
+  
   axios
     .post('https://slack.com/api/users.setPresence',{presence: status}, options)
 }
